@@ -6,6 +6,7 @@ const {adminAuth}=require("../adminAuth");
 
 const jwt=require("jsonwebtoken")
 const bcrypt=require("bcrypt");
+const { readonly } = require("zod");
 
 
 
@@ -79,7 +80,7 @@ adminrouter.post("/admin/createcourse",adminAuth,async(req,res)=>{
          description,
          price,
          imageUrl,
-         createdBy:"6887c0dc2c4ce7d10b667523"
+         createdBy:req.user._id
        })
 
        return res.status(200).json({
@@ -95,6 +96,48 @@ adminrouter.post("/admin/createcourse",adminAuth,async(req,res)=>{
 })
 
 
+adminrouter.delete("/admin/:courseId",adminAuth,async(req,res)=>{
+    try {
+        const courseId=req.params.courseId;
+
+
+        console.log("req", req.user)
+        const createdby=req.user._id;
+        //only admin who has created the course should be able to delete course
+        const result=await courseModel.findOne({
+            $and:[
+                {_id:courseId},
+                {createdBy:req.user._id}
+
+            ]
+            
+        });
+
+        console.log(`result is ${result}`)
+
+        if(!result)
+        {
+            return res.status(404).json({
+                message:"you can not delete this course"
+            })
+        }
+
+        await courseModel.deleteOne({
+            _id:courseId
+        })
+       return res.status(200).json({
+            message: "course deleted successfully",
+       })
+    } 
+    catch (error) {
+        return res.status(500).json({
+            message:error.message
+        })
+    }
+})
+
 module.exports={
     adminrouter
 }
+
+

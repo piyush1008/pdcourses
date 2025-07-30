@@ -12,24 +12,25 @@ const auth=async(req,res,next)=>{
         const decodeToken=await jwt.verify(token ,process.env.JWT_SECRET);
         console.log(`decoded token is ${JSON.stringify(decodeToken)}`);
 
-        console.log(req);
         const user=await userModel.findOne({
             _id:decodeToken.id
         });
-
-        if(user)
+        console.log(`user info is ${user}`);
+        if(!user)
         {
-            req.username=user.username;
+
+            return res.status(404).json({
+                message: "please sigin in first",
+                })
+        }
+        req.username=user.username;
             req.id=user._id;
             next();
-        }
-        return res.status(404).json({
-            message: "please sigin in first"
-        })
     } 
     catch (error) {
         return res.status(404).json({
-            message: "please sigin in first"
+            message: "issue during authentication",
+            error:error.message
         })
     }
 
