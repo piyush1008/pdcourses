@@ -132,9 +132,28 @@ userrouter.get("/course/:courseid",auth,async(req,res)=>{
 })
 
 
-// userrouter.get("/getcourse",auth,(req,res)=>{
+userrouter.get("/getcourse",auth,async(req,res)=>{
+    try {
+        const user = await userModel.findById(req.id).populate("purchasedCourseId");
 
-// })
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+          }
+      
+          return res.status(200).json({
+            message: "Courses fetched successfully",
+            courses: user.purchasedCourseId
+          });
+
+        
+    } 
+    catch (error) {
+        return res.status(500).json({
+            mesage: "cannot get the courses"
+        })
+    }
+})
 
 
 module.exports={
