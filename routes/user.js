@@ -131,8 +131,8 @@ userrouter.get("/course/:courseid",auth,async(req,res)=>{
     }
 })
 
-
-userrouter.get("/getcourse",auth,async(req,res)=>{
+//route to let the customer see their brought course
+userrouter.get("/getmycourse",auth,async(req,res)=>{
     try {
         const user = await userModel.findById(req.id).populate("purchasedCourseId");
 
@@ -144,6 +144,29 @@ userrouter.get("/getcourse",auth,async(req,res)=>{
           return res.status(200).json({
             message: "Courses fetched successfully",
             courses: user.purchasedCourseId
+          });
+
+        
+    } 
+    catch (error) {
+        return res.status(500).json({
+            mesage: "cannot get the courses"
+        })
+    }
+})
+
+userrouter.get("/getcourses",async(req,res)=>{
+    try {
+        const course = await courseModel.find({})
+
+
+        if (!course) {
+            return res.status(404).json({ message: "no course available" });
+          }
+      
+          return res.status(200).json({
+            message: "Courses fetched successfully",
+            course
           });
 
         
